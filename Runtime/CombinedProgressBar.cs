@@ -24,7 +24,7 @@ namespace Damdor.Progressio
             if (progressBars == null) return;
             foreach (var progressBar in progressBars)
             {
-                if (progressBar == null) continue;
+                if (progressBar == null || progressBar == this) continue;
                 progressBar.Value = newValue;
             }
         }

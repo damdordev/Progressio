@@ -18,13 +18,14 @@ namespace Damdor.Progressio
             get => value;
             set
             {
-                if (Mathf.Approximately(this.value, value)) return;
-                this.value = value;
-                Apply(this.value);
+                var clampedValue = Mathf.Clamp01(value);
+                if (Mathf.Approximately(this.value, clampedValue)) return;
+                this.value = clampedValue;
+                Refresh();
             }
         }
 
-        [SerializeField] private float value;
+        [SerializeField, Range(0f, 1f)] private float value;
         private int changesLevel;
         private bool needRefresh;
 
@@ -59,9 +60,16 @@ namespace Damdor.Progressio
         /// <summary>
         /// Forces an update of the visual representation using the current progress value.
         /// This should be called when any properties that affect the representation change.
+        /// This method respects the StartChanges/CommitChanges block.
         /// </summary>
         protected void Refresh()
         {
+            if (changesLevel > 0)
+            {
+                needRefresh = true;
+                return;
+            }
+            needRefresh = false;
             Apply(value);
         }
 
@@ -73,7 +81,7 @@ namespace Damdor.Progressio
 #if UNITY_EDITOR
         protected virtual void OnValidate()
         {
-            Apply(value);
+            Refresh();
         }
 #endif
     }
