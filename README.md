@@ -1,51 +1,70 @@
 # Progressio
 
-Progressio is a Unity package that provides an abstraction for different types of progress bars.
-It works in both Edit Mode (to visualize changes instantly when modifying the value in the inspector) and Play Mode.
-
-## Features
-
-- **Base `ProgressBar` class:** All progress bars inherit from this class and can be controlled uniformly by changing the `Value` property.
-- **`ImageFillProgressBar`:** Modifies the `fillAmount` of a target `Image`.
-- **`PositionProgressBar`:** Modifies the position (local or world) of a target `Transform`.
-- **`RotationProgressBar`:** Modifies the rotation (Euler angles, local or world) of a target `Transform`.
-- **`ScaleProgressBar`:** Modifies the local scale of a target `Transform`.
-- **`ColorProgressBar`:** Modifies the color of a target `Graphic` (like `Image` or `Text`).
-- **`CanvasAlphaProgressBar`:** Modifies the `alpha` property of a target `CanvasGroup`.
-- **`CombinedProgressBar`:** Takes a list of other progress bars and sets their `Value` to its own value, synchronizing them.
+Progressio is a lightweight, modular, and extensible progress bar library for Unity. It abstracts visual progress representation, allowing you to easily link progress values (between 0 and 1) to various Transform or UI properties. With built-in editor support, the changes update automatically as you adjust them in the Unity Editor.
 
 ## Usage
 
-### Example 1: Creating a simple Image Fill Progress Bar
-1. Add an `Image` to your Canvas and set its `Image Type` to `Filled`.
-2. Add the `ImageFillProgressBar` component to a GameObject.
-3. Assign the `Image` to the `Target` field in the inspector.
-4. Set `Start Value` and `End Value` (e.g., 0 to 1).
-5. Modify the `Value` slider in the inspector to see the image fill instantly!
-
-### Example 2: Synchronizing multiple visual effects
-If you want a progress bar that scales up an object while also fading it in:
-1. Create a `ScaleProgressBar` and a `CanvasAlphaProgressBar` on your target GameObject (ensure it has a CanvasGroup).
-2. Create a `CombinedProgressBar` component.
-3. Add the `ScaleProgressBar` and `CanvasAlphaProgressBar` to the `ProgressBars` list in the `CombinedProgressBar` inspector.
-4. Changing the `Value` of the `CombinedProgressBar` will now update both scale and alpha simultaneously.
-
-### Scripting Example
-You can easily control progress bars from your own scripts:
+Progressio components can be attached to GameObjects in your scene. Simply modify the `Value` property (ranging from 0.0 to 1.0) on any `ProgressBar` component to update its visual state.
 
 ```csharp
-using UnityEngine;
 using Damdor.Progressio;
+using UnityEngine;
 
-public class ProgressController : MonoBehaviour
+public class ProgressExample : MonoBehaviour
 {
-    public ProgressBar myProgressBar;
+    public ProgressBar healthBar;
 
-    private void Update()
+    public void UpdateHealth(float currentHealth, float maxHealth)
     {
-        // Example: Oscillating progress between 0 and 1 over time
-        float progress = (Mathf.Sin(Time.time) + 1f) / 2f;
-        myProgressBar.Value = progress;
+        // Automatically updates the visual representation
+        healthBar.Value = currentHealth / maxHealth;
+    }
+}
+```
+
+### Batch Changes
+
+If you need to change multiple configuration properties of a progress bar via code (e.g., changing colors or transforms) without triggering redundant visual refreshes each time, use `StartChanges()` and `CommitChanges()`:
+
+```csharp
+myColorBar.StartChanges();
+myColorBar.StartColor = Color.red;
+myColorBar.EndColor = Color.green;
+myColorBar.CommitChanges(); // Visuals are updated only once here
+```
+
+## Built-in Progress Bars
+
+Progressio comes with several built-in implementations ready to use:
+
+* **ScaleProgressBar**: Interpolates the `localScale` of a target `Transform` between a start and end scale.
+* **PositionProgressBar**: Interpolates the `localPosition` of a target `Transform`.
+* **RotationProgressBar**: Interpolates the `localRotation` of a target `Transform`.
+* **ColorProgressBar**: Interpolates the `color` of a Unity UI `Graphic` (like an `Image` or `Text`) between a start and end color.
+* **ImageFillProgressBar**: Adjusts the `fillAmount` of a Unity UI `Image`.
+* **CanvasAlphaProgressBar**: Interpolates the `alpha` of a `CanvasGroup`.
+* **CombinedProgressBar**: Groups multiple progress bars together. Updating the `Value` on this component automatically updates all progress bars in its list.
+
+## Creating Custom Progress Bars
+
+You can easily create your own custom progress bar by inheriting from the `ProgressBar` base class and implementing the `Apply(float newValue)` method.
+
+```csharp
+using Damdor.Progressio;
+using UnityEngine;
+using TMPro;
+
+public class TextProgressBar : ProgressBar
+{
+    public TextMeshProUGUI text;
+
+    protected override void Apply(float newValue)
+    {
+        if (text != null)
+        {
+            // Convert the 0-1 progress value to a percentage
+            text.text = $"{(newValue * 100f):0}%";
+        }
     }
 }
 ```
