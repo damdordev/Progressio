@@ -25,7 +25,30 @@ namespace Damdor.Progressio
         }
 
         [SerializeField] private float value;
+        private int changesLevel;
+        private bool needRefresh;
 
+        /// <summary>
+        /// Begins a batch update operation, deferring visual refresh until <see cref="CommitChanges"/> is called.
+        /// </summary>
+        /// <remarks>
+        /// Use this when making multiple property changes to avoid redundant refreshes.
+        /// Must be paired with <see cref="CommitChanges"/> to apply the updates.
+        /// </remarks>
+        public void StartChanges()
+        {
+            ++changesLevel;
+        }
+
+        /// <summary>
+        /// Ends a batch update operation and triggers an immediate refresh if any changes were made.
+        /// </summary>
+        public void CommitChanges()
+        {
+            --changesLevel;
+            if (changesLevel <= 0 && needRefresh) Refresh();
+        }
+        
         /// <summary>
         /// Invoked internally when the progress value changes. 
         /// It should not modify the variable value, only modify the UI/Transform according to newValue.
