@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace Damdor.Progressio
 {
@@ -22,13 +23,23 @@ namespace Damdor.Progressio
                 if (Mathf.Approximately(this.value, clampedValue)) return;
                 this.value = clampedValue;
                 Refresh();
+                OnValueChanged?.Invoke(this.value);
             }
         }
         
         /// <summary>
         /// The value currently being displayed. Might differ from 'Value' during an animation.
         /// </summary>
-        public float DisplayedValue { get; private set; }
+        public float DisplayedValue 
+        { 
+            get => displayedValue; 
+            private set
+            {
+                if (Mathf.Approximately(displayedValue, value)) return;
+                displayedValue = value;
+                OnDisplayedValueChanged?.Invoke(displayedValue);
+            }
+        }
 
         [Tooltip("The target progress value between 0 and 1.")]
         [SerializeField, Range(0f, 1f)] private float value;
@@ -36,8 +47,24 @@ namespace Damdor.Progressio
         [Tooltip("Animation settings for the progress bar.")]
         [SerializeField] private ProgressBarAnimation animation = new();
 
+        [Space]
+        [Header("Events")]
+        [Tooltip("Invoked when the target Value changes.")]
+        public UnityEvent<float> OnValueChanged;
+
+        [Tooltip("Invoked when the visually displayed value changes (during animation or direct assignment).")]
+        public UnityEvent<float> OnDisplayedValueChanged;
+
+        [Tooltip("Invoked when a visual animation towards the target Value starts.")]
+        public UnityEvent OnAnimationStarted;
+
+        [Tooltip("Invoked when a visual animation towards the target Value finishes.")]
+        public UnityEvent OnAnimationFinished;
+
+        private float displayedValue;
         private int changesLevel;
         private bool needRefresh;
+        private bool isAnimating;
 
         /// <summary>
         /// Begins a batch update operation, deferring visual refresh until <see cref="CommitChanges"/> is called.
@@ -67,9 +94,23 @@ namespace Damdor.Progressio
         public void SetValueWithoutAnimation(float newValue)
         {
             var clampedValue = Mathf.Clamp01(newValue);
+            
+            var changed = !Mathf.Approximately(this.value, clampedValue);
             value = clampedValue;
+            
+            if (isAnimating)
+            {
+                isAnimating = false;
+                OnAnimationFinished?.Invoke();
+            }
+
             DisplayedValue = value;
             Refresh();
+            
+            if (changed)
+            {
+                OnValueChanged?.Invoke(value);
+            }
         }
         
         /// <summary>
@@ -95,16 +136,36 @@ namespace Damdor.Progressio
 
             if (!animation.Animated || !Application.isPlaying)
             {
+                if (isAnimating)
+                {
+                    isAnimating = false;
+                    OnAnimationFinished?.Invoke();
+                }
                 DisplayedValue = value;
+            }
+            else if (Application.isPlaying && !Mathf.Approximately(DisplayedValue, value))
+            {
+                if (!isAnimating)
+                {
+                    isAnimating = true;
+                    OnAnimationStarted?.Invoke();
+                }
             }
 
             Apply(DisplayedValue);
+        }
+
+        protected virtual void Start()
+        {
+            OnValueChanged?.Invoke(value);
+            OnDisplayedValueChanged?.Invoke(value);
         }
 
         protected virtual void OnEnable()
         {
             DisplayedValue = value;
             Apply(DisplayedValue);
+            isAnimating = false;
         }
 
         protected virtual void Update()
@@ -114,9 +175,15 @@ namespace Damdor.Progressio
 
             var dt = animation.IgnoreTimescale ? Time.unscaledDeltaTime : Time.deltaTime;
             DisplayedValue = Mathf.Lerp(DisplayedValue, value, dt * animation.Speed);
+            
             if (Mathf.Abs(DisplayedValue - value) < 0.001f)
             {
                 DisplayedValue = value;
+                if (isAnimating)
+                {
+                    isAnimating = false;
+                    OnAnimationFinished?.Invoke();
+                }
             }
             Apply(DisplayedValue);
         }

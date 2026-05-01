@@ -22,6 +22,15 @@ public class ProgressExample : MonoBehaviour
 }
 ```
 
+### Events
+
+The `ProgressBar` component includes several UnityEvents you can hook into from the Inspector or via code:
+
+* **OnValueChanged**: Triggered when the target `Value` changes.
+* **OnDisplayedValueChanged**: Triggered when the visual value changes (this is fired multiple times during a smooth animation).
+* **OnAnimationStarted**: Triggered when the smooth visual animation towards the target `Value` begins.
+* **OnAnimationFinished**: Triggered when the smooth visual animation towards the target `Value` finishes.
+
 ### Smooth Animations
 
 Progressio supports smooth, animated transitions. To enable this, simply check the `Animated` box in the Inspector and adjust the `Speed`.
