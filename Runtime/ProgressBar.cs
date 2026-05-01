@@ -24,8 +24,18 @@ namespace Damdor.Progressio
                 Refresh();
             }
         }
+        
+        /// <summary>
+        /// The value currently being displayed. Might differ from 'Value' during an animation.
+        /// </summary>
+        public float DisplayedValue { get; private set; }
 
+        [Tooltip("The target progress value between 0 and 1.")]
         [SerializeField, Range(0f, 1f)] private float value;
+        
+        [Tooltip("Animation settings for the progress bar.")]
+        [SerializeField] private ProgressBarAnimation animation = new();
+
         private int changesLevel;
         private bool needRefresh;
 
@@ -49,6 +59,18 @@ namespace Damdor.Progressio
             --changesLevel;
             if (changesLevel <= 0 && needRefresh) Refresh();
         }
+
+        /// <summary>
+        /// Sets the progress value and instantly updates the visual representation, bypassing any animation.
+        /// </summary>
+        /// <param name="newValue">The progress value between 0 and 1.</param>
+        public void SetValueWithoutAnimation(float newValue)
+        {
+            var clampedValue = Mathf.Clamp01(newValue);
+            value = clampedValue;
+            DisplayedValue = value;
+            Refresh();
+        }
         
         /// <summary>
         /// Invoked internally when the progress value changes. 
@@ -70,12 +92,33 @@ namespace Damdor.Progressio
                 return;
             }
             needRefresh = false;
-            Apply(value);
+
+            if (!animation.Animated || !Application.isPlaying)
+            {
+                DisplayedValue = value;
+            }
+
+            Apply(DisplayedValue);
         }
 
         protected virtual void OnEnable()
         {
-            Apply(value);
+            DisplayedValue = value;
+            Apply(DisplayedValue);
+        }
+
+        protected virtual void Update()
+        {
+            if (!animation.Animated || !Application.isPlaying || changesLevel > 0) return;
+            if (Mathf.Approximately(DisplayedValue, value)) return;
+
+            var dt = animation.IgnoreTimescale ? Time.unscaledDeltaTime : Time.deltaTime;
+            DisplayedValue = Mathf.Lerp(DisplayedValue, value, dt * animation.Speed);
+            if (Mathf.Abs(DisplayedValue - value) < 0.001f)
+            {
+                DisplayedValue = value;
+            }
+            Apply(DisplayedValue);
         }
 
 #if UNITY_EDITOR

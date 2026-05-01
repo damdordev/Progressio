@@ -22,6 +22,21 @@ public class ProgressExample : MonoBehaviour
 }
 ```
 
+### Smooth Animations
+
+Progressio supports smooth, animated transitions. To enable this, simply check the `Animated` box in the Inspector and adjust the `Speed`.
+
+- **Animated**: If true, the progress bar will animate towards the target value.
+- **Speed**: Determines how fast the transition occurs.
+- **Ignore Timescale**: If true, the animation will not be affected by `Time.timeScale`, which is useful for UI that needs to remain responsive even when the game is paused.
+
+You can also set the value instantly, bypassing the animation, by calling `SetValueWithoutAnimation()`:
+
+```csharp
+// Instantly sets the health bar to full, e.g., on respawn
+healthBar.SetValueWithoutAnimation(1.0f);
+```
+
 ### Batch Changes
 
 If you need to change multiple configuration properties of a progress bar via code (e.g., changing colors or transforms) without triggering redundant visual refreshes each time, use `StartChanges()` and `CommitChanges()`:
