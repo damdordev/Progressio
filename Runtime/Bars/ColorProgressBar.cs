@@ -60,10 +60,8 @@ namespace Damdor.Progressio
         /// <param name="newValue">The progress value between 0 and 1.</param>
         protected override void Apply(float newValue)
         {
-            if (target != null)
-            {
-                target.color = Color.Lerp(startColor, endColor, newValue);
-            }
+            if (target == null) return;
+            target.color = Color.Lerp(startColor, endColor, newValue);
         }
     }
 }

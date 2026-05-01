@@ -23,7 +23,7 @@ namespace Damdor.Progressio
                 if (Mathf.Approximately(this.value, clampedValue)) return;
                 this.value = clampedValue;
                 Refresh();
-                OnValueChanged?.Invoke(this.value);
+                events.OnValueChanged?.Invoke(this.value);
             }
         }
         
@@ -37,29 +37,20 @@ namespace Damdor.Progressio
             {
                 if (Mathf.Approximately(displayedValue, value)) return;
                 displayedValue = value;
-                OnDisplayedValueChanged?.Invoke(displayedValue);
+                events.OnDisplayedValueChanged?.Invoke(displayedValue);
             }
         }
+
+        public ProgressBarAnimation Animation => animation;
+        public ProgressBarEvents Events => events;
 
         [Tooltip("The target progress value between 0 and 1.")]
         [SerializeField, Range(0f, 1f)] private float value;
         
         [Tooltip("Animation settings for the progress bar.")]
         [SerializeField] private ProgressBarAnimation animation = new();
-
-        [Space]
-        [Header("Events")]
-        [Tooltip("Invoked when the target Value changes.")]
-        public UnityEvent<float> OnValueChanged;
-
-        [Tooltip("Invoked when the visually displayed value changes (during animation or direct assignment).")]
-        public UnityEvent<float> OnDisplayedValueChanged;
-
-        [Tooltip("Invoked when a visual animation towards the target Value starts.")]
-        public UnityEvent OnAnimationStarted;
-
-        [Tooltip("Invoked when a visual animation towards the target Value finishes.")]
-        public UnityEvent OnAnimationFinished;
+        
+        [SerializeField] private ProgressBarEvents events = new();
 
         private float displayedValue;
         private int changesLevel;
@@ -95,13 +86,13 @@ namespace Damdor.Progressio
         {
             var clampedValue = Mathf.Clamp01(newValue);
             
-            var changed = !Mathf.Approximately(this.value, clampedValue);
+            var changed = !Mathf.Approximately(value, clampedValue);
             value = clampedValue;
             
             if (isAnimating)
             {
                 isAnimating = false;
-                OnAnimationFinished?.Invoke();
+                events.OnAnimationFinished?.Invoke();
             }
 
             DisplayedValue = value;
@@ -109,7 +100,7 @@ namespace Damdor.Progressio
             
             if (changed)
             {
-                OnValueChanged?.Invoke(value);
+                events.OnValueChanged?.Invoke(value);
             }
         }
         
@@ -139,7 +130,7 @@ namespace Damdor.Progressio
                 if (isAnimating)
                 {
                     isAnimating = false;
-                    OnAnimationFinished?.Invoke();
+                    events.OnAnimationFinished?.Invoke();
                 }
                 DisplayedValue = value;
             }
@@ -148,7 +139,7 @@ namespace Damdor.Progressio
                 if (!isAnimating)
                 {
                     isAnimating = true;
-                    OnAnimationStarted?.Invoke();
+                    events.OnAnimationStarted?.Invoke();
                 }
             }
 
@@ -157,8 +148,8 @@ namespace Damdor.Progressio
 
         protected virtual void Start()
         {
-            OnValueChanged?.Invoke(value);
-            OnDisplayedValueChanged?.Invoke(value);
+            events.OnValueChanged?.Invoke(value);
+            events.OnDisplayedValueChanged?.Invoke(value);
         }
 
         protected virtual void OnEnable()
@@ -182,7 +173,7 @@ namespace Damdor.Progressio
                 if (isAnimating)
                 {
                     isAnimating = false;
-                    OnAnimationFinished?.Invoke();
+                    events.OnAnimationFinished?.Invoke();
                 }
             }
             Apply(DisplayedValue);

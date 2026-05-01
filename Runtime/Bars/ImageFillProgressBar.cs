@@ -51,7 +51,7 @@ namespace Damdor.Progressio
         }
         
         [SerializeField] private Image target;
-        [SerializeField] private float startValue = 0f;
+        [SerializeField] private float startValue;
         [SerializeField] private float endValue = 1f;
 
         /// <summary>
@@ -60,10 +60,8 @@ namespace Damdor.Progressio
         /// <param name="newValue">The progress value between 0 and 1.</param>
         protected override void Apply(float newValue)
         {
-            if (target != null)
-            {
-                target.fillAmount = Mathf.Lerp(startValue, endValue, newValue);
-            }
+            if (target == null) return;
+            target.fillAmount = Mathf.Lerp(startValue, endValue, newValue);
         }
     }
 }

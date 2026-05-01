@@ -74,17 +74,15 @@ namespace Damdor.Progressio
         /// <param name="newValue">The progress value between 0 and 1.</param>
         protected override void Apply(float newValue)
         {
-            if (target != null)
+            if (target == null) return;
+            var currentRotation = Vector3.Lerp(startRotation, endRotation, newValue);
+            if (useLocalRotation)
             {
-                Vector3 currentRotation = Vector3.Lerp(startRotation, endRotation, newValue);
-                if (useLocalRotation)
-                {
-                    target.localEulerAngles = currentRotation;
-                }
-                else
-                {
-                    target.eulerAngles = currentRotation;
-                }
+                target.localEulerAngles = currentRotation;
+            }
+            else
+            {
+                target.eulerAngles = currentRotation;
             }
         }
     }

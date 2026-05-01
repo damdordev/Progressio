@@ -37,7 +37,7 @@ namespace Damdor.Progressio
         }
         
         [Tooltip("If true, the progress bar will animate towards the target value smoothly.")]
-        [SerializeField] private bool animated = false;
+        [SerializeField] private bool animated;
 
         [Tooltip("The speed of the animation. Represents how fast the progress transitions.")]
         [SerializeField] private float speed = 10f;

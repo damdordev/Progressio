@@ -11,9 +11,18 @@ namespace Damdor.Progressio
         /// <summary>
         /// Gets the list of combined progress bars.
         /// </summary>
-        public List<ProgressBar> ProgressBars => progressBars;
+        public List<ProgressBar> ProgressBars
+        {
+            get => progressBars;
+            set
+            {
+                progressBars.Clear();
+                progressBars.AddRange(value);
+                Refresh();
+            }
+        }
         
-        [SerializeField] private List<ProgressBar> progressBars = new List<ProgressBar>();
+        [SerializeField] private List<ProgressBar> progressBars = new();
 
         /// <summary>
         /// Passes the progress value to all combined progress bars.

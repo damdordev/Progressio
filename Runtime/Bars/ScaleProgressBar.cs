@@ -59,10 +59,8 @@ namespace Damdor.Progressio
         /// <param name="newValue">The progress value between 0 and 1.</param>
         protected override void Apply(float newValue)
         {
-            if (target != null)
-            {
-                target.localScale = Vector3.Lerp(startScale, endScale, newValue);
-            }
+            if (target == null) return;
+            target.localScale = Vector3.Lerp(startScale, endScale, newValue);
         }
     }
 }

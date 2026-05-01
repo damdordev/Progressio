@@ -50,7 +50,7 @@ namespace Damdor.Progressio
         }
         
         [SerializeField] private CanvasGroup target;
-        [SerializeField] private float startAlpha = 0f;
+        [SerializeField] private float startAlpha;
         [SerializeField] private float endAlpha = 1f;
 
         /// <summary>
@@ -59,10 +59,8 @@ namespace Damdor.Progressio
         /// <param name="newValue">The progress value between 0 and 1.</param>
         protected override void Apply(float newValue)
         {
-            if (target != null)
-            {
-                target.alpha = Mathf.Lerp(startAlpha, endAlpha, newValue);
-            }
+            if (target == null) return;
+            target.alpha = Mathf.Lerp(startAlpha, endAlpha, newValue);
         }
     }
 }
