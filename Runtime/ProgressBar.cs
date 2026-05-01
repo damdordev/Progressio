@@ -189,6 +189,7 @@ namespace Damdor.Progressio
 #if UNITY_EDITOR
         protected virtual void OnValidate()
         {
+            if (string.IsNullOrEmpty(gameObject.scene.path)) return;
             Refresh();
         }
 #endif
