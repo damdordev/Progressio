@@ -4,19 +4,34 @@ using UnityEngine.Events;
 
 namespace Damdor.Progressio
 {
+    /// <summary>
+    /// Holds events related to a ProgressBar.
+    /// </summary>
     [Serializable]
     public class ProgressBarEvents
     {
+        /// <summary>
+        /// Invoked when the target Value changes.
+        /// </summary>
         [Tooltip("Invoked when the target Value changes.")]
         public UnityEvent<float> OnValueChanged;
 
+        /// <summary>
+        /// Invoked when the visually displayed value changes (during animation or direct assignment).
+        /// </summary>
         [Tooltip("Invoked when the visually displayed value changes (during animation or direct assignment).")]
         public UnityEvent<float> OnDisplayedValueChanged;
 
+        /// <summary>
+        /// Invoked when a visual animation towards the target Value starts.
+        /// </summary>
         [Tooltip("Invoked when a visual animation towards the target Value starts.")]
         public UnityEvent OnAnimationStarted;
 
+        /// <summary>
+        /// Invoked when a visual animation towards the target Value finishes.
+        /// </summary>
         [Tooltip("Invoked when a visual animation towards the target Value finishes.")]
         public UnityEvent OnAnimationFinished;
     }
-}
+ }

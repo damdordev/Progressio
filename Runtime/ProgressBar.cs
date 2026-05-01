@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.Events;
 
 namespace Damdor.Progressio
 {
@@ -41,7 +40,14 @@ namespace Damdor.Progressio
             }
         }
 
+        /// <summary>
+        /// Gets the animation settings for this progress bar.
+        /// </summary>
         public ProgressBarAnimation Animation => animation;
+
+        /// <summary>
+        /// Gets the events associated with this progress bar.
+        /// </summary>
         public ProgressBarEvents Events => events;
 
         [Tooltip("The target progress value between 0 and 1.")]
@@ -50,6 +56,7 @@ namespace Damdor.Progressio
         [Tooltip("Animation settings for the progress bar.")]
         [SerializeField] private ProgressBarAnimation animation = new();
         
+        [Tooltip("Events associated with the progress bar's lifecycle and value changes.")]
         [SerializeField] private ProgressBarEvents events = new();
 
         private float displayedValue;
