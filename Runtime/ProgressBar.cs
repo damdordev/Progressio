@@ -18,6 +18,11 @@ namespace Damdor.Progressio
             get => value;
             set
             {
+                if (!wasValueSet)
+                {
+                    SetValueWithoutAnimation(value);
+                    return;
+                }
                 var clampedValue = Mathf.Clamp01(value);
                 if (Mathf.Approximately(this.value, clampedValue)) return;
                 this.value = clampedValue;
@@ -63,6 +68,7 @@ namespace Damdor.Progressio
         private int changesLevel;
         private bool needRefresh;
         private bool isAnimating;
+        private bool wasValueSet;
 
         /// <summary>
         /// Begins a batch update operation, deferring visual refresh until <see cref="CommitChanges"/> is called.
@@ -109,6 +115,8 @@ namespace Damdor.Progressio
             {
                 events.OnValueChanged?.Invoke(value);
             }
+            
+            wasValueSet = true;
         }
         
         /// <summary>
