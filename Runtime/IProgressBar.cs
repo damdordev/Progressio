@@ -44,6 +44,12 @@ namespace Damdor.Progressio
         /// <param name="newValue">The target value between 0 and 1.</param>
         void SetValueWithoutAnimation(float newValue);
 
+        /// <summary>
+        /// Animates the progress bar to the specified target value.
+        /// </summary>
+        /// <param name="value">The target value between 0 and 1.</param>
+        /// <param name="cancellationToken">Token to cancel the animation.</param>
+        /// <returns>A task representing the animation process. True if completed successfully, false if value was changed during animation.</returns>
         UniTask<bool> AnimateTo(float value, CancellationToken cancellationToken = default);
     }
 }

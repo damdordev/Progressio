@@ -170,6 +170,12 @@ namespace Damdor.Progressio
         private UniTaskCompletionSource<bool> completionSource;
         private CancellationToken cancellationToken;
         
+        /// <summary>
+        /// Animates the progress bar to the specified target value.
+        /// </summary>
+        /// <param name="value">The target value between 0 and 1.</param>
+        /// <param name="cancellationToken">Token to cancel the animation.</param>
+        /// <returns>A task representing the animation process. True if completed successfully, false if value was changed during animation.</returns>
         public UniTask<bool> AnimateTo(float value, CancellationToken cancellationToken = default)
         {
             Value = value;
@@ -230,6 +236,7 @@ namespace Damdor.Progressio
         /// <summary>
         /// Updates the controller, driving animations if enabled. Usually called every frame.
         /// </summary>
+        /// <param name="dt">The time delta for the update.</param>
         public void Update(float dt)
         {
             if (Animation == null || !Animation.Animated || !Application.isPlaying || changesLevel > 0) return;

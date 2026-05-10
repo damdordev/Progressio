@@ -55,12 +55,16 @@ namespace Damdor.Progressio
         /// <inheritdoc />
         public ProgressBarEvents Events => controller.Events;
 
+        /// <inheritdoc />
         public void StartChanges() => controller.StartChanges();
 
+        /// <inheritdoc />
         public void CommitChanges() => controller.CommitChanges();
 
+        /// <inheritdoc />
         public void SetValueWithoutAnimation(float newValue) => controller.SetValueWithoutAnimation(newValue);
 
+        /// <inheritdoc />
         public UniTask<bool> AnimateTo(float value, CancellationToken cancellationToken = default)
             => controller.AnimateTo(value, cancellationToken);
 

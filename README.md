@@ -2,7 +2,23 @@
 
 Progressio is a lightweight and customizable library for creating and managing progress bars in Unity. It provides a simple API for common operations, built-in animations, event handling, and supports both traditional MonoBehaviours and the newer UI Toolkit.
 
-# Usage
+## Table of Contents
+- [Usage Canvas](#usage-canvas)
+  - [Use mono-based progress bars](#use-mono-based-progress-bars)
+  - [Create own mono-based progress bar (deriving from ProgressBar)](#create-own-mono-based-progress-bar-deriving-from-progressbar)
+- [Usage UiElement](#usage-uielement)
+  - [Use progress bars for toolkit](#use-progress-bars-for-toolkit)
+  - [Pooling](#pooling)
+- [Animations](#animations)
+- [Events](#events)
+- [Advanced usage](#advanced-usage)
+  - [Batching changes](#batching-changes)
+  - [ProgressBarController](#progressbarcontroller)
+- [List of built-in progress bars](#list-of-built-in-progress-bars)
+
+---
+
+# Usage Canvas
 
 ## Use mono-based progress bars
 To use a built-in mono-based progress bar, simply add one of the provided components (like `ImageFillProgressBar` or `ColorProgressBar`) to a GameObject in your scene. Configure its properties, animation settings, and events through the Unity Inspector. You can then update the progress programmatically:
@@ -38,8 +54,10 @@ public class MyCustomProgressBar : ProgressBar
 }
 ```
 
+# Usage UiElement
+
 ## Use progress bars for toolkit
-Progressio integrates with Unity's UI Toolkit through the `UiToolkitProgressBar` wrapper. You can retrieve instances from a pool and bind them to your UI elements. Remember to call `Update` manually if animations are enabled.
+Progressio integrates with Unity's UI Toolkit through the `UiToolkitProgressBar` wrapper. You can retrieve instances from a pool and bind them to your UI elements. Animations are updated automatically.
 
 ```csharp
 using UnityEngine;
@@ -57,57 +75,98 @@ public class UIToolkitExample : MonoBehaviour
         var uiElement = root.Q<UnityEngine.UIElements.ProgressBar>("MyProgressBar");
         
         // Wrap the UI element and add animations/events if needed
-        progressBarWrapper = ProgressioSettings.GetUiToolkitProgressBar(uiElement);
+        progressBarWrapper = ProgressioManager.GetUiToolkitProgressBar(uiElement);
         progressBarWrapper.Value = 0.75f;
-    }
-
-    void Update()
-    {
-        // Must be called manually to drive animations for UI Toolkit progress bars
-        progressBarWrapper?.Update();
     }
 
     void OnDestroy()
     {
-        ProgressioSettings.ReleaseUiToolkitProgressBar(progressBarWrapper);
+        // Release the wrapper to the pool
+        ProgressioManager.ReleaseUiToolkitProgressBar(progressBarWrapper);
     }
 }
 ```
 
-## ProgressBarController
-`ProgressBarController` is the core logic class handling clamping, animations, and events. It's independent of Unity components and can be used in pure C# environments or customized setups. It is used internally by both `ProgressBar` and `UiToolkitProgressBar`.
-
-## Batching changes
-If you need to make multiple property changes without triggering intermediate visual updates or animations, use `StartChanges()` and `CommitChanges()`. The progress bar will only refresh and animate once `CommitChanges()` is called.
+## Pooling
+The library uses `ProgressioManager` to prevent allocations by pooling UI Toolkit wrappers.
 
 ```csharp
-progressBar.StartChanges();
-progressBar.Animation.Speed = 5f;
-progressBar.Value = 1f;
-progressBar.CommitChanges(); // Updates happen here
+// Configure the maximum pool size (default is 20)
+ProgressioManager.MaxUiToolkitProgressBarPoolSize = 30;
+
+// Acquiring a wrapper uses a pooled instance if available
+var wrapper = ProgressioManager.GetUiToolkitProgressBar(uiElement);
+
+// Releasing a wrapper resets its state and returns it to the pool
+ProgressioManager.ReleaseUiToolkitProgressBar(wrapper);
 ```
 
-## Animations
-The `ProgressBarAnimation` class allows you to smoothly interpolate the progress value. You can enable animations, set the speed, and choose whether to ignore `Time.timeScale` (useful for animations during paused games).
+# Animations
+The `ProgressBarAnimation` class allows you to smoothly interpolate the progress value. You can enable animations, set the speed, and ignore `Time.timeScale` (useful for paused games).
 
 ```csharp
 progressBar.Animation.Animated = true;
-progressBar.Animation.Speed = 2f;
-progressBar.Animation.IgnoreTimescale = false;
+progressBar.Animation.Speed = 5f;
+progressBar.Animation.IgnoreTimescale = true;
+
+// If you have UniTask integrated via DAMDOR_PROGRESSIO_UNITASK, you can await animations:
+await progressBar.AnimateTo(1f, cancellationToken);
 ```
 
-## Events
+# Events
 The `ProgressBarEvents` class exposes UnityEvents that you can hook into via the Inspector or through code:
-- `OnValueChanged`: Called when the target value is changed.
-- `OnDisplayedValueChanged`: Called as the progress visually changes (during animations).
-- `OnAnimationStarted`: Called when an animation begins.
-- `OnAnimationFinished`: Called when an animation concludes.
 
 ```csharp
-progressBar.Events.OnAnimationFinished.AddListener(() => Debug.Log("Animation done!"));
+void Start()
+{
+    // Called when the target value is changed
+    progressBar.Events.OnValueChanged.AddListener(val => Debug.Log($"Target: {val}"));
+    
+    // Called as the progress visually changes (during animations)
+    progressBar.Events.OnDisplayedValueChanged.AddListener(val => Debug.Log($"Visual: {val}"));
+    
+    // Called when an animation begins
+    progressBar.Events.OnAnimationStarted.AddListener(() => Debug.Log("Animation started!"));
+    
+    // Called when an animation concludes
+    progressBar.Events.OnAnimationFinished.AddListener(() => Debug.Log("Animation finished!"));
+}
 ```
 
-## List of built-in progress bars
+# Advanced usage
+
+## Batching changes
+If you need to make multiple property changes without triggering intermediate visual updates or animations, use `StartChanges()` and `CommitChanges()`. 
+
+```csharp
+progressBar.StartChanges(); // Pauses visual updates and events
+
+progressBar.Animation.Speed = 5f;
+progressBar.Value = 1f;
+
+progressBar.CommitChanges(); // Refreshes state and triggers animations/events
+```
+
+## ProgressBarController
+`ProgressBarController` is the core logic class handling clamping, animations, and events. It is independent of Unity components and can be used in pure C# environments. It is used internally by both `ProgressBar` and `UiToolkitProgressBar`. You can retrieve instances via the internal pool.
+
+```csharp
+var controller = ProgressioManager.GetController(
+    apply: val => Debug.Log($"Current visual progress is {val}"),
+    animation: new ProgressBarAnimation { Animated = true, Speed = 2f },
+    events: new ProgressBarEvents()
+);
+
+controller.Value = 0.5f;
+
+// The controller must be updated manually every frame
+controller.Update(Time.deltaTime);
+
+// Return it to the pool when it is no longer needed
+ProgressioManager.ReleaseController(controller);
+```
+
+# List of built-in progress bars
 The package comes with several pre-made progress bar components for common use cases:
 - **CanvasAlphaProgressBar**: Fades a CanvasGroup's alpha value.
 - **ColorProgressBar**: Interpolates between colors on a graphic element.
@@ -117,3 +176,11 @@ The package comes with several pre-made progress bar components for common use c
 - **RotationProgressBar**: Rotates an object's local rotation between start and end points.
 - **ScaleProgressBar**: Scales an object's local scale between start and end points.
 - **UiToolkitProgressBar**: A wrapper for UI Toolkit's abstract progress bar element.
+
+Example of modifying a built-in progress bar dynamically:
+```csharp
+var colorBar = GetComponent<ColorProgressBar>();
+colorBar.StartColor = Color.red;
+colorBar.EndColor = Color.green;
+colorBar.Value = 0.8f;
+```
