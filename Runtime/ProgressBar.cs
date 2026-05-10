@@ -65,7 +65,8 @@ namespace Damdor.Progressio
 
         protected virtual void Start() => controller.Start();
 
-        protected virtual void Update() => controller.Update();
+        protected virtual void Update() =>
+            controller.Update(animation.IgnoreTimescale ? Time.unscaledDeltaTime : Time.deltaTime);
 
         protected void OnDestroy()
         {

@@ -1,14 +1,11 @@
 To implement:
 
-* Change ProgressioSettings -> ProgressioManager (or sth else)
 * Add auto-update for ui toolkit
 * Support for dla Unitask (AnimateTo() and WaitForEndOfAnimation())
 * #ifdef for canvas
 * #ifdef for ui toolkit
 * ProgressBarController - update should have parameter dt
 * Unit tests
-* Add StartChanges(), CommitChanges(), SetValueWithoutAnimation() to IProgressBar
-* ProgressBarController should be sealed
 * Error if CommitChanges() goes belove 0
 
 To figure out:

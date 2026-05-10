@@ -7,7 +7,7 @@ namespace Damdor.Progressio
     /// Controls the logic and state of a progress bar, including value clamping, animations, and events.
     /// This class can be used to manage progress functionality independently of any specific UI framework.
     /// </summary>
-    public class ProgressBarController
+    public sealed class ProgressBarController
     {
         /// <summary>
         /// The target progress value between 0 and 1. Setting this value may trigger animations and events.
@@ -192,12 +192,11 @@ namespace Damdor.Progressio
         /// <summary>
         /// Updates the controller, driving animations if enabled. Usually called every frame.
         /// </summary>
-        public void Update()
+        public void Update(float dt)
         {
             if (animation == null || !animation.Animated || !Application.isPlaying || changesLevel > 0) return;
             if (Mathf.Approximately(DisplayedValue, value)) return;
-
-            var dt = animation.IgnoreTimescale ? Time.unscaledDeltaTime : Time.deltaTime;
+            
             DisplayedValue = Mathf.Lerp(DisplayedValue, value, dt * animation.Speed);
             
             if (Mathf.Abs(DisplayedValue - value) < 0.001f)

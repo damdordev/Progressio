@@ -26,9 +26,9 @@ namespace Damdor.Progressio
         /// <summary>
         /// Updates the controller, driving animations if enabled. Usually called every frame.
         /// </summary>
-        public void Update()
+        public void Update(float dt)
         {
-            controller.Update();
+            controller.Update(dt);
         }
 
         /// <summary>
@@ -56,6 +56,12 @@ namespace Damdor.Progressio
         
         /// <inheritdoc />
         public ProgressBarEvents Events => controller.Events;
+
+        public void StartChanges() => controller.StartChanges();
+
+        public void CommitChanges() => controller.CommitChanges();
+
+        public void SetValueWithoutAnimation(float newValue) => controller.SetValueWithoutAnimation(newValue);
 
         private void Apply(float value)
         {
