@@ -31,7 +31,7 @@ namespace Damdor.Progressio
                 if (Mathf.Approximately(this.value, clampedValue)) return;
                 this.value = clampedValue;
                 Refresh();
-                events.OnValueChanged?.Invoke(this.value);
+                Events.OnValueChanged?.Invoke(this.value);
             }
         }
         
@@ -45,24 +45,22 @@ namespace Damdor.Progressio
             {
                 if (Mathf.Approximately(displayedValue, value)) return;
                 displayedValue = value;
-                events.OnDisplayedValueChanged?.Invoke(displayedValue);
+                Events.OnDisplayedValueChanged?.Invoke(displayedValue);
             }
         }
         
         /// <summary>
         /// Animation settings used by the controller.
         /// </summary>
-        public ProgressBarAnimation Animation => animation;
+        public ProgressBarAnimation Animation { get; private set; } = new();
 
         /// <summary>
         /// Events associated with the controller's lifecycle and value changes.
         /// </summary>
-        public ProgressBarEvents Events => events;
+        public ProgressBarEvents Events { get; private set; } = new();
 
         private float value;
-        
-        private ProgressBarAnimation animation = new();
-        private ProgressBarEvents events = new();
+
         private float displayedValue;
         private int changesLevel;
         private bool needRefresh;
@@ -80,8 +78,8 @@ namespace Damdor.Progressio
         public void Setup(Action<float> apply, ProgressBarAnimation animation, ProgressBarEvents events)
         {
             this.apply = apply;
-            this.animation = animation;
-            this.events = events;
+            this.Animation = animation;
+            this.Events = events;
         }
         
         /// <summary>
@@ -89,10 +87,10 @@ namespace Damdor.Progressio
         /// </summary>
         public void Start()
         {
-            if (events != null)
+            if (Events != null)
             {
-                events.OnValueChanged?.Invoke(value);
-                events.OnDisplayedValueChanged?.Invoke(value);
+                Events.OnValueChanged?.Invoke(value);
+                Events.OnDisplayedValueChanged?.Invoke(value);
             }
             DisplayedValue = value;
             Apply(DisplayedValue);
@@ -111,8 +109,8 @@ namespace Damdor.Progressio
             changesLevel = 0;
             needRefresh = false;
             isAnimating = false;
-            animation = null;
-            events = null;
+            Animation = null;
+            Events = null;
         }
         
         /// <summary>
@@ -153,7 +151,7 @@ namespace Damdor.Progressio
             if (isAnimating)
             {
                 isAnimating = false;
-                if(events != null) events.OnAnimationFinished?.Invoke();
+                Events?.OnAnimationFinished?.Invoke();
             }
 
             DisplayedValue = value;
@@ -161,7 +159,7 @@ namespace Damdor.Progressio
             
             if (changed)
             {
-                if(events != null)events.OnValueChanged?.Invoke(value);
+                Events?.OnValueChanged?.Invoke(value);
             }
             
             wasValueSet = true;
@@ -205,12 +203,12 @@ namespace Damdor.Progressio
             }
             needRefresh = false;
 
-            if (animation == null || !animation.Animated || !Application.isPlaying)
+            if (Animation == null || !Animation.Animated || !Application.isPlaying)
             {
                 if (isAnimating)
                 {
                     isAnimating = false;
-                    events?.OnAnimationFinished?.Invoke();
+                    Events?.OnAnimationFinished?.Invoke();
                 }
                 DisplayedValue = value;
 #if DAMDOR_PROGRESSIO_UNITASK
@@ -222,7 +220,7 @@ namespace Damdor.Progressio
                 if (!isAnimating)
                 {
                     isAnimating = true;
-                    events?.OnAnimationStarted?.Invoke();
+                    Events?.OnAnimationStarted?.Invoke();
                 }
             }
 
@@ -234,10 +232,10 @@ namespace Damdor.Progressio
         /// </summary>
         public void Update(float dt)
         {
-            if (animation == null || !animation.Animated || !Application.isPlaying || changesLevel > 0) return;
+            if (Animation == null || !Animation.Animated || !Application.isPlaying || changesLevel > 0) return;
             if (Mathf.Approximately(DisplayedValue, value)) return;
             
-            DisplayedValue = Mathf.Lerp(DisplayedValue, value, dt * animation.Speed);
+            DisplayedValue = Mathf.Lerp(DisplayedValue, value, dt * Animation.Speed);
             
             if (Mathf.Abs(DisplayedValue - value) < 0.001f)
             {
@@ -245,7 +243,7 @@ namespace Damdor.Progressio
                 if (isAnimating)
                 {
                     isAnimating = false;
-                    events?.OnAnimationFinished?.Invoke();
+                    Events?.OnAnimationFinished?.Invoke();
                 }
 #if DAMDOR_PROGRESSIO_UNITASK
                 FinishCurrentCompletionSource(true);
