@@ -14,24 +14,24 @@ namespace Damdor.Progressio
         /// Invoked when the target Value changes.
         /// </summary>
         [Tooltip("Invoked when the target Value changes.")]
-        public UnityEvent<float> OnValueChanged;
+        public UnityEvent<float> OnValueChanged = new();
 
         /// <summary>
         /// Invoked when the visually displayed value changes (during animation or direct assignment).
         /// </summary>
         [Tooltip("Invoked when the visually displayed value changes (during animation or direct assignment).")]
-        public UnityEvent<float> OnDisplayedValueChanged;
+        public UnityEvent<float> OnDisplayedValueChanged = new();
 
         /// <summary>
         /// Invoked when a visual animation towards the target Value starts.
         /// </summary>
         [Tooltip("Invoked when a visual animation towards the target Value starts.")]
-        public UnityEvent OnAnimationStarted;
+        public UnityEvent OnAnimationStarted = new();
 
         /// <summary>
         /// Invoked when a visual animation towards the target Value finishes.
         /// </summary>
         [Tooltip("Invoked when a visual animation towards the target Value finishes.")]
-        public UnityEvent OnAnimationFinished;
+        public UnityEvent OnAnimationFinished = new();
     }
  }

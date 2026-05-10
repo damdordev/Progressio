@@ -1,7 +1,6 @@
 To implement:
 
 * Support for dla Unitask (AnimateTo() and WaitForEndOfAnimation())
-* Unit tests
 
 To figure out:
 * First animation/ initial value
