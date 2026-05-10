@@ -1,5 +1,7 @@
 #if DAMDOR_PROGRESSIO_UIELEMENTS
 
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using UnityEngine.UIElements;
 
 namespace Damdor.Progressio
@@ -58,6 +60,9 @@ namespace Damdor.Progressio
         public void CommitChanges() => controller.CommitChanges();
 
         public void SetValueWithoutAnimation(float newValue) => controller.SetValueWithoutAnimation(newValue);
+
+        public UniTask<bool> AnimateTo(float value, CancellationToken cancellationToken = default)
+            => controller.AnimateTo(value, cancellationToken);
 
         private void Apply(float value)
         {

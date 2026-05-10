@@ -1,3 +1,5 @@
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace Damdor.Progressio
@@ -51,6 +53,9 @@ namespace Damdor.Progressio
         /// </summary>
         /// <param name="newValue">The new value to set.</param>
         public void SetValueWithoutAnimation(float newValue) => controller.SetValueWithoutAnimation(newValue);
+        
+        public UniTask<bool> AnimateTo(float value, CancellationToken cancellationToken = default)
+            => controller.AnimateTo(value, cancellationToken);
         
         /// <summary>
         /// This method is called to apply the new progress value to the visual representation of the progress bar.

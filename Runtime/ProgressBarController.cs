@@ -1,4 +1,6 @@
 using System;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace Damdor.Progressio
@@ -17,6 +19,9 @@ namespace Damdor.Progressio
             get => value;
             set
             {
+#if DAMDOR_PROGRESSIO_UNITASK
+                FinishCurrentCompletionSource(false);
+#endif
                 if (!wasValueSet)
                 {
                     SetValueWithoutAnimation(value);
@@ -137,6 +142,9 @@ namespace Damdor.Progressio
         /// <param name="newValue">The target value between 0 and 1.</param>
         public void SetValueWithoutAnimation(float newValue)
         {
+#if DAMDOR_PROGRESSIO_UNITASK
+            FinishCurrentCompletionSource(false);
+#endif
             var clampedValue = Mathf.Clamp01(newValue);
             
             var changed = !Mathf.Approximately(value, clampedValue);
@@ -158,6 +166,31 @@ namespace Damdor.Progressio
             
             wasValueSet = true;
         }
+
+        #if DAMDOR_PROGRESSIO_UNITASK
+
+        private UniTaskCompletionSource<bool> completionSource;
+        private CancellationToken cancellationToken;
+        
+        public UniTask<bool> AnimateTo(float value, CancellationToken cancellationToken = default)
+        {
+            Value = value;
+            completionSource = new UniTaskCompletionSource<bool>();
+            this.cancellationToken = cancellationToken;
+            return completionSource.Task;
+        }
+
+        private void FinishCurrentCompletionSource(bool result)
+        {
+            if (completionSource == null) return;
+            var tmpSource = completionSource;
+            var tmpCancellationToken = cancellationToken;
+            completionSource = null;
+            cancellationToken = CancellationToken.None;
+            if(!tmpCancellationToken.IsCancellationRequested) tmpSource.TrySetResult(result);
+        }
+        
+        #endif
         
         /// <summary>
         /// Evaluates the current state, starts animations if needed, and applies the display value.
@@ -177,16 +210,19 @@ namespace Damdor.Progressio
                 if (isAnimating)
                 {
                     isAnimating = false;
-                    if(events != null) events.OnAnimationFinished?.Invoke();
+                    events?.OnAnimationFinished?.Invoke();
                 }
                 DisplayedValue = value;
+#if DAMDOR_PROGRESSIO_UNITASK
+                FinishCurrentCompletionSource(true);
+#endif
             }
             else if (Application.isPlaying && !Mathf.Approximately(DisplayedValue, value))
             {
                 if (!isAnimating)
                 {
                     isAnimating = true;
-                    if(events != null)events.OnAnimationStarted?.Invoke();
+                    events?.OnAnimationStarted?.Invoke();
                 }
             }
 
@@ -209,8 +245,11 @@ namespace Damdor.Progressio
                 if (isAnimating)
                 {
                     isAnimating = false;
-                    if(events != null) events.OnAnimationFinished?.Invoke();
+                    events?.OnAnimationFinished?.Invoke();
                 }
+#if DAMDOR_PROGRESSIO_UNITASK
+                FinishCurrentCompletionSource(true);
+#endif
             }
             Apply(DisplayedValue);
         }

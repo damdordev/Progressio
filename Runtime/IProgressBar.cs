@@ -1,3 +1,6 @@
+using System.Threading;
+using Cysharp.Threading.Tasks;
+
 namespace Damdor.Progressio
 {
     /// <summary>
@@ -40,5 +43,7 @@ namespace Damdor.Progressio
         /// </summary>
         /// <param name="newValue">The target value between 0 and 1.</param>
         void SetValueWithoutAnimation(float newValue);
+
+        UniTask<bool> AnimateTo(float value, CancellationToken cancellationToken = default);
     }
 }
