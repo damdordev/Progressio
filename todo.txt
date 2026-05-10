@@ -3,9 +3,7 @@ To implement:
 * Support for dla Unitask (AnimateTo() and WaitForEndOfAnimation())
 * #ifdef for canvas
 * #ifdef for ui toolkit
-* ProgressBarController - update should have parameter dt
 * Unit tests
-* Error if CommitChanges() goes belove 0
 
 To figure out:
 * First animation/ initial value

@@ -124,6 +124,10 @@ namespace Damdor.Progressio
         public void CommitChanges()
         {
             --changesLevel;
+            if (changesLevel < 0)
+            {
+                Debug.LogError("[Progressio] Commit changes was invoked without StartChanges()");
+            }
             if (changesLevel <= 0 && needRefresh) Refresh();
         }
         
