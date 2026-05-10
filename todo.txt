@@ -1,6 +1,5 @@
 To implement:
 
-* Add auto-update for ui toolkit
 * Support for dla Unitask (AnimateTo() and WaitForEndOfAnimation())
 * #ifdef for canvas
 * #ifdef for ui toolkit

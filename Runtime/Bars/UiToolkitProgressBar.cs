@@ -21,14 +21,7 @@ namespace Damdor.Progressio
         {
             this.innerProgressBar = innerProgressBar;
             controller = ProgressioManager.GetController(Apply, animation, events);
-        }
-
-        /// <summary>
-        /// Updates the controller, driving animations if enabled. Usually called every frame.
-        /// </summary>
-        public void Update(float dt)
-        {
-            controller.Update(dt);
+            ProgressBarUpdateProvider.Register(Update);
         }
 
         /// <summary>
@@ -37,6 +30,7 @@ namespace Damdor.Progressio
         public void Reset()
         {
             ProgressioManager.ReleaseController(controller);
+            ProgressBarUpdateProvider.Unregister(Update);
             controller = null;
             innerProgressBar = null;
         }
@@ -66,6 +60,13 @@ namespace Damdor.Progressio
         private void Apply(float value)
         {
             innerProgressBar.value = 100f * value;
+        }
+        
+        private void Update(float deltaTime, float unscaledDeltaTime)
+        {
+            controller.Update(controller.Animation != null
+                ? controller.Animation.IgnoreTimescale ? unscaledDeltaTime : deltaTime
+                : deltaTime);
         }
         
     }
