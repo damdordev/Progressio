@@ -75,7 +75,7 @@ namespace Damdor.Progressio
 
         protected void OnDestroy()
         {
-            ProgressioManager.ReleaseController(controller);
+            ProgressioManager.ReleaseController(innerController);
             innerController = null;
         }
 

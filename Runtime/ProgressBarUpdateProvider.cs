@@ -22,6 +22,13 @@ namespace Damdor.Progressio
             receivers.Remove(receiver);
             if (receivers.Count == 0) DestroyInstance();
         }
+        
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetState()
+        {
+            receivers.Clear();
+            instance = null;
+        }
 
         private void Update()
         {

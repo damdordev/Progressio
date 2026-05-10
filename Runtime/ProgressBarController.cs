@@ -87,6 +87,7 @@ namespace Damdor.Progressio
         /// </summary>
         public void Start()
         {
+            if (isAnimating) return;
             if (Events != null)
             {
                 Events.OnValueChanged?.Invoke(value);
@@ -111,6 +112,9 @@ namespace Damdor.Progressio
             isAnimating = false;
             Animation = null;
             Events = null;
+#if DAMDOR_PROGRESSIO_UNITASK
+            FinishCurrentCompletionSource(false);
+#endif
         }
         
         /// <summary>
@@ -179,6 +183,7 @@ namespace Damdor.Progressio
         public UniTask<bool> AnimateTo(float value, CancellationToken cancellationToken = default)
         {
             Value = value;
+            if (!isAnimating) return new UniTask<bool>(true);
             completionSource = new UniTaskCompletionSource<bool>();
             this.cancellationToken = cancellationToken;
             return completionSource.Task;

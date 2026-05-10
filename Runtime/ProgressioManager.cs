@@ -52,6 +52,7 @@ namespace Damdor.Progressio
         public static void ReleaseController(ProgressBarController controller)
         {
             if (controller == null) return;
+            if (controllers.Contains(controller)) return;
             controller.Reset();
             if (controllers.Count < maxControllerPoolSize) controllers.Push(controller);
         }
@@ -97,6 +98,7 @@ namespace Damdor.Progressio
         public static void ReleaseUiToolkitProgressBar(UiToolkitProgressBar progressBar)
         {
             if (progressBar == null) return;
+            if (uiToolkitProgressBars.Contains(progressBar)) return;
             progressBar.Reset();
             if (uiToolkitProgressBars.Count < maxUiToolkitProgressBarPoolSize) uiToolkitProgressBars.Push(progressBar);
         }        
