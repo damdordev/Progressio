@@ -7,7 +7,7 @@ namespace Damdor.Progressio
     /// <summary>
     /// Global settings and object pooling for the Progressio library.
     /// </summary>
-    public static class ProgressioSettings
+    public static class ProgressioManager
     {
         /// <summary>
         /// Maximum number of ProgressBarController instances to keep in the pool.

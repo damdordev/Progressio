@@ -20,7 +20,7 @@ namespace Damdor.Progressio
         public void Setup(AbstractProgressBar innerProgressBar, ProgressBarAnimation animation = null, ProgressBarEvents events = null)
         {
             this.innerProgressBar = innerProgressBar;
-            controller = ProgressioSettings.GetController(Apply, animation, events);
+            controller = ProgressioManager.GetController(Apply, animation, events);
         }
 
         /// <summary>
@@ -36,7 +36,7 @@ namespace Damdor.Progressio
         /// </summary>
         public void Reset()
         {
-            ProgressioSettings.ReleaseController(controller);
+            ProgressioManager.ReleaseController(controller);
             controller = null;
             innerProgressBar = null;
         }
