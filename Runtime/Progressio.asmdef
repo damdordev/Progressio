@@ -1,7 +1,9 @@
 {
     "name": "Progressio",
     "rootNamespace": "Damdor.Progressio",
-    "references": [],
+    "references": [
+        "GUID:f51ebe6a0ceec4240a699833d6309b23"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
@@ -9,6 +11,22 @@
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [],
-    "versionDefines": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.ugui",
+            "expression": "",
+            "define": "DAMDOR_PROGRESSIO_UGUI"
+        },
+        {
+            "name": "com.unity.modules.uielements",
+            "expression": "",
+            "define": "DAMDOR_PROGRESSIO_UIELEMENTS"
+        },
+        {
+            "name": "com.cysharp.unitask",
+            "expression": "",
+            "define": "DAMDOR_PROGRESSIO_UNITASK"
+        }
+    ],
     "noEngineReferences": false
 }

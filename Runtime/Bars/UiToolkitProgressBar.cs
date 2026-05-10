@@ -1,3 +1,5 @@
+#if DAMDOR_PROGRESSIO_UIELEMENTS
+
 using UnityEngine.UIElements;
 
 namespace Damdor.Progressio
@@ -71,3 +73,5 @@ namespace Damdor.Progressio
         
     }
 }
+
+#endif

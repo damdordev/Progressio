@@ -1,3 +1,5 @@
+#if DAMDOR_PROGRESSIO_UGUI
+
 using UnityEngine;
 
 namespace Damdor.Progressio
@@ -64,3 +66,5 @@ namespace Damdor.Progressio
         }
     }
 }
+
+#endif

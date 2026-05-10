@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+#if DAMDOR_PROGRESSIO_UIELEMENTS
 using UnityEngine.UIElements;
+#endif
 
 namespace Damdor.Progressio
 {
@@ -22,23 +24,9 @@ namespace Damdor.Progressio
             }
         }
         
-        /// <summary>
-        /// Maximum number of UiToolkitProgressBar instances to keep in the pool.
-        /// </summary>
-        public static int MaxUiToolkitProgressBarPoolSize
-        {
-            get => maxUiToolkitProgressBarPoolSize;
-            set
-            {
-                maxUiToolkitProgressBarPoolSize = value;
-                while (uiToolkitProgressBars.Count >= maxUiToolkitProgressBarPoolSize) uiToolkitProgressBars.Pop();
-            }
-        }
-        
         private static readonly Stack<ProgressBarController> controllers = new();
-        private static readonly Stack<UiToolkitProgressBar> uiToolkitProgressBars = new();
+
         private static int maxControllerPoolSize = 20;
-        private static int maxUiToolkitProgressBarPoolSize = 20;
 
         /// <summary>
         /// Retrieves a ProgressBarController from the pool or creates a new one.
@@ -67,7 +55,24 @@ namespace Damdor.Progressio
             controller.Reset();
             if (controllers.Count < maxControllerPoolSize) controllers.Push(controller);
         }
-
+        
+#if DAMDOR_PROGRESSIO_UIELEMENTS
+        private static readonly Stack<UiToolkitProgressBar> uiToolkitProgressBars = new();
+        private static int maxUiToolkitProgressBarPoolSize = 20;
+        
+        /// <summary>
+        /// Maximum number of UiToolkitProgressBar instances to keep in the pool.
+        /// </summary>
+        public static int MaxUiToolkitProgressBarPoolSize
+        {
+            get => maxUiToolkitProgressBarPoolSize;
+            set
+            {
+                maxUiToolkitProgressBarPoolSize = value;
+                while (uiToolkitProgressBars.Count >= maxUiToolkitProgressBarPoolSize) uiToolkitProgressBars.Pop();
+            }
+        }
+        
         /// <summary>
         /// Retrieves a UiToolkitProgressBar from the pool or creates a new one.
         /// </summary>
@@ -94,7 +99,9 @@ namespace Damdor.Progressio
             if (progressBar == null) return;
             progressBar.Reset();
             if (uiToolkitProgressBars.Count < maxUiToolkitProgressBarPoolSize) uiToolkitProgressBars.Push(progressBar);
-        }
+        }        
+        
+#endif
         
     }
 }
