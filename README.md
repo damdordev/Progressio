@@ -57,7 +57,11 @@ public class MyCustomProgressBar : ProgressBar
 # Usage UiElement
 
 ## Use progress bars for toolkit
-Progressio integrates with Unity's UI Toolkit through the `UiToolkitProgressBar` wrapper. You can retrieve instances from a pool and bind them to your UI elements. Animations are updated automatically.
+Progressio integrates with Unity's UI Toolkit through the `UiToolkitProgressBar` wrapper. You can create instances and bind them to your UI elements. Animations are updated automatically.
+
+There are several ways to create a `UiToolkitProgressBar`:
+
+**1. Using `UiToolkitProgressBar.Create` with animation and event objects:**
 
 ```csharp
 using UnityEngine;
@@ -74,31 +78,66 @@ public class UIToolkitExample : MonoBehaviour
         var root = uiDocument.rootVisualElement;
         var uiElement = root.Q<UnityEngine.UIElements.ProgressBar>("MyProgressBar");
         
-        // Wrap the UI element and add animations/events if needed
-        progressBarWrapper = ProgressioManager.GetUiToolkitProgressBar(uiElement);
+        var animation = new ProgressBarAnimation { Animated = true, Speed = 5f };
+        var events = new ProgressBarEvents();
+        events.OnAnimationFinished.AddListener(() => Debug.Log("Animation Finished!"));
+
+        // Wrap the UI element and add animations/events
+        progressBarWrapper = UiToolkitProgressBar.Create(uiElement, animation, events);
         progressBarWrapper.Value = 0.75f;
     }
 
     void OnDestroy()
     {
         // Release the wrapper to the pool
-        ProgressioManager.ReleaseUiToolkitProgressBar(progressBarWrapper);
+        progressBarWrapper.Release();
     }
 }
 ```
 
+**2. Using `UiToolkitProgressBarData`:**
+
+This is useful for configuring progress bars in the inspector without creating `ScriptableObject` assets.
+
+```csharp
+[System.Serializable]
+public class MyUI
+{
+    public UiToolkitProgressBarData progressBarData;
+}
+```
+
+Then in your code:
+
+```csharp
+var progressBar = UiToolkitProgressBar.Create(uiElement, myUI.progressBarData);
+```
+
+**3. Using `UiToolkitProgressBarAsset`:**
+
+Create a `ScriptableObject` asset in your project to reuse progress bar configurations.
+
+```csharp
+// In your script
+public UiToolkitProgressBarAsset progressBarAsset;
+
+// ...
+
+var progressBar = UiToolkitProgressBar.Create(uiElement, progressBarAsset);
+```
+
 ## Pooling
-The library uses `ProgressioManager` to prevent allocations by pooling UI Toolkit wrappers.
+The library uses pooling to prevent allocations for `UiToolkitProgressBar`, `ProgressBarController`, `ProgressBarAnimation`, and `ProgressBarEvents`. You can configure the pool sizes via `ProgressioSettings`.
 
 ```csharp
 // Configure the maximum pool size (default is 20)
-ProgressioManager.MaxUiToolkitProgressBarPoolSize = 30;
+ProgressioSettings.MaxUiToolkitProgressBarPoolSize = 30;
 
 // Acquiring a wrapper uses a pooled instance if available
-var wrapper = ProgressioManager.GetUiToolkitProgressBar(uiElement);
+var wrapper = UiToolkitProgressBar.Create(uiElement, null, null);
 
 // Releasing a wrapper resets its state and returns it to the pool
-ProgressioManager.ReleaseUiToolkitProgressBar(wrapper);
+wrapper.Release();
 ```
 
 # Animations
@@ -151,7 +190,7 @@ progressBar.CommitChanges(); // Refreshes state and triggers animations/events
 `ProgressBarController` is the core logic class handling clamping, animations, and events. It is independent of Unity components and can be used in pure C# environments. It is used internally by both `ProgressBar` and `UiToolkitProgressBar`. You can retrieve instances via the internal pool.
 
 ```csharp
-var controller = ProgressioManager.GetController(
+var controller = ProgressioPooling.GetController(
     apply: val => Debug.Log($"Current visual progress is {val}"),
     animation: new ProgressBarAnimation { Animated = true, Speed = 2f },
     events: new ProgressBarEvents()
@@ -163,7 +202,7 @@ controller.Value = 0.5f;
 controller.Update(Time.deltaTime);
 
 // Return it to the pool when it is no longer needed
-ProgressioManager.ReleaseController(controller);
+ProgressioPooling.ReleaseController(controller);
 ```
 
 # List of built-in progress bars

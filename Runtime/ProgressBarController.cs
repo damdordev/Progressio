@@ -110,7 +110,9 @@ namespace Damdor.Progressio
             changesLevel = 0;
             needRefresh = false;
             isAnimating = false;
+            ProgressioPooling.ReleaseAnimation(Animation);
             Animation = null;
+            ProgressioPooling.ReleaseEvents(Events);
             Events = null;
 #if DAMDOR_PROGRESSIO_UNITASK
             FinishCurrentCompletionSource(false);

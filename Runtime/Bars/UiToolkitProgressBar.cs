@@ -14,26 +14,65 @@ namespace Damdor.Progressio
     {
         private ProgressBarController controller;
         private AbstractProgressBar innerProgressBar;
+
+        /// <summary>
+        /// Creates a new instance of <see cref="UiToolkitProgressBar"/> or retrieves one from the pool.
+        /// </summary>
+        /// <param name="innerProgressBar">The UI Toolkit progress bar to wrap.</param>
+        /// <param name="data">The data object containing animation and event settings.</param>
+        /// <returns>A configured instance of <see cref="UiToolkitProgressBar"/>.</returns>
+        public static UiToolkitProgressBar Create(AbstractProgressBar innerProgressBar, UiToolkitProgressBarData data)
+            => Create(innerProgressBar, data.Animation, data.Events);
         
         /// <summary>
-        /// Sets up the wrapper with a UI Toolkit progress bar, animation settings, and events.
+        /// Creates a new instance of <see cref="UiToolkitProgressBar"/> or retrieves one from the pool.
         /// </summary>
-        /// <param name="innerProgressBar">The underlying UI Toolkit progress bar element.</param>
-        /// <param name="animation">Animation settings. Can be null</param>
-        /// <param name="events">Events associated with the progress bar. Can be null</param>
-        public void Setup(AbstractProgressBar innerProgressBar, ProgressBarAnimation animation = null, ProgressBarEvents events = null)
+        /// <param name="innerProgressBar">The UI Toolkit progress bar to wrap.</param>
+        /// <param name="asset">The asset containing animation and event settings.</param>
+        /// <returns>A configured instance of <see cref="UiToolkitProgressBar"/>.</returns>
+        public static UiToolkitProgressBar Create(AbstractProgressBar innerProgressBar, UiToolkitProgressBarAsset asset)
+            => Create(innerProgressBar, asset.Animation, asset.Events);
+        
+        /// <summary>
+        /// Creates a new instance of <see cref="UiToolkitProgressBar"/> or retrieves one from the pool.
+        /// </summary>
+        /// <param name="innerProgressBar">The UI Toolkit progress bar to wrap.</param>
+        /// <param name="animation">The animation settings.</param>
+        /// <param name="events">The event settings.</param>
+        /// <returns>A configured instance of <see cref="UiToolkitProgressBar"/>.</returns>
+        public static UiToolkitProgressBar Create(AbstractProgressBar innerProgressBar, ProgressBarAnimation animation, ProgressBarEvents events)
+        {
+            var progressBar = ProgressioPooling.GetUiToolkitProgressBar();
+            progressBar.Setup(innerProgressBar, animation, events);
+            return progressBar;
+        }
+        
+        private void Setup(AbstractProgressBar innerProgressBar, ProgressBarAnimation animation, ProgressBarEvents events)
         {
             this.innerProgressBar = innerProgressBar;
-            controller = ProgressioManager.GetController(Apply, animation, events);
+            controller = ProgressioPooling.GetController(
+                Apply,
+                animation?.Clone() ?? ProgressioPooling.GetAnimation(),
+                events?.Clone() ?? ProgressioPooling.GetEvents()
+            );
             ProgressBarUpdateProvider.Register(Update);
+        }
+
+        /// <summary>
+        /// Releases the <see cref="UiToolkitProgressBar"/> instance back to the pool.
+        /// This should be called when the progress bar is no longer needed.
+        /// </summary>
+        public void Release()
+        {
+            ProgressioPooling.ReleaseUiToolkitProgressBar(this);
         }
 
         /// <summary>
         /// Resets the wrapper, releasing its resources and internal controller to the pool.
         /// </summary>
-        public void Reset()
+        internal void Reset()
         {
-            ProgressioManager.ReleaseController(controller);
+            ProgressioPooling.ReleaseController(controller);
             ProgressBarUpdateProvider.Unregister(Update);
             controller = null;
             innerProgressBar = null;

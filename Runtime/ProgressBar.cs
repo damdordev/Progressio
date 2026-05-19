@@ -11,7 +11,7 @@ namespace Damdor.Progressio
     public abstract class ProgressBar : MonoBehaviour, IProgressBar
     {
         private ProgressBarController innerController;
-        private ProgressBarController controller => innerController ??= ProgressioManager.GetController(Apply, animation, events);
+        private ProgressBarController controller => innerController ??= ProgressioPooling.GetController(Apply, animation, events);
 
         /// <inheritdoc />
         public float Value
@@ -75,7 +75,7 @@ namespace Damdor.Progressio
 
         protected void OnDestroy()
         {
-            ProgressioManager.ReleaseController(innerController);
+            ProgressioPooling.ReleaseController(innerController);
             innerController = null;
         }
 

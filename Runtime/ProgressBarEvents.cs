@@ -33,5 +33,25 @@ namespace Damdor.Progressio
         /// </summary>
         [Tooltip("Invoked when a visual animation towards the target Value finishes.")]
         public UnityEvent OnAnimationFinished = new();
+        
+        internal ProgressBarEvents Clone()
+        {
+            var events = ProgressioPooling.GetEvents();
+            return events;
+        }
+        
+        public void Release()
+        {
+            ProgressioPooling.ReleaseEvents(this);
+        }
+        
+        internal void Reset()
+        {
+            OnValueChanged.RemoveAllListeners();
+            OnDisplayedValueChanged.RemoveAllListeners();
+            OnAnimationStarted.RemoveAllListeners();
+            OnAnimationFinished.RemoveAllListeners();
+        }
+        
     }
  }

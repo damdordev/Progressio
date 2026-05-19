@@ -44,5 +44,26 @@ namespace Damdor.Progressio
 
         [Tooltip("If true, the animation will ignore Time.timeScale, making it suitable for UI that needs to animate even when the game is paused.")]
         [SerializeField] private bool ignoreTimescale;
+
+        internal ProgressBarAnimation Clone()
+        {
+            var animation = ProgressioPooling.GetAnimation();
+            animation.Animated = Animated;
+            animation.Speed = Speed;
+            animation.IgnoreTimescale = IgnoreTimescale;
+            return animation;
+        }
+        
+        public void Release()
+        {
+            ProgressioPooling.ReleaseAnimation(this);
+        }
+        
+        internal void Reset()
+        {
+            animated = false;
+            speed = 10f;
+            ignoreTimescale = false;
+        }
     }
 }
