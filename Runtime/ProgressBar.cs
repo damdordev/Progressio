@@ -83,7 +83,7 @@ namespace Damdor.Progressio
         protected virtual void OnValidate()
         {
             if (string.IsNullOrEmpty(gameObject.scene.path)) return;
-            controller.Refresh();
+            controller.Value = value;
         }
 #endif
     }

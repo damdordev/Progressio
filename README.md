@@ -214,7 +214,9 @@ The package comes with several pre-made progress bar components for common use c
 - **PositionProgressBar**: Moves an object's local position between start and end points.
 - **RotationProgressBar**: Rotates an object's local rotation between start and end points.
 - **ScaleProgressBar**: Scales an object's local scale between start and end points.
+- **VisualStateProgressBar**: Setting a proper state for visual state based on progress
 - **UiToolkitProgressBar**: A wrapper for UI Toolkit's abstract progress bar element.
+
 
 Example of modifying a built-in progress bar dynamically:
 ```csharp
