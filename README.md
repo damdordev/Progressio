@@ -215,6 +215,7 @@ The package comes with several pre-made progress bar components for common use c
 - **RotationProgressBar**: Rotates an object's local rotation between start and end points.
 - **ScaleProgressBar**: Scales an object's local scale between start and end points.
 - **VisualStateProgressBar**: Setting a proper state for visual state based on progress
+- **SegmentedProgressBar** A progress bar that divides its progress across multiple child progress bar segments.
 - **UiToolkitProgressBar**: A wrapper for UI Toolkit's abstract progress bar element.
 
 
