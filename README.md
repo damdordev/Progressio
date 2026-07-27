@@ -14,6 +14,7 @@ Progressio is a lightweight and customizable library for creating and managing p
 - [Advanced usage](#advanced-usage)
   - [Batching changes](#batching-changes)
   - [ProgressBarController](#progressbarcontroller)
+- [Extensions](#extensions)
 - [List of built-in progress bars](#list-of-built-in-progress-bars)
 
 ---
