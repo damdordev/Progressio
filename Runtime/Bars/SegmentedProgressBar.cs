@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,23 +9,38 @@ namespace Damdor.Progressio
     /// </summary>
     public class SegmentedProgressBar : ProgressBar
     {
-        /// <summary>
-        /// Gets or sets the list of progress bar segments.
-        /// </summary>
-        public List<ProgressBar> Segments
+        public int SegmentCount
         {
-            get => segments;
+            get => segmentCount;
             set
             {
-                segments = value;
+                if (segmentCount == value) return;
+                segmentCount = value;
                 Refresh();
             }
         }
-        
-        [SerializeField] private List<ProgressBar> segments;
+
+        public ProgressBar SegmentPrefab
+        {
+            get => segmentPrefab;
+            set
+            {
+                if (segmentPrefab == value) return;
+                segmentPrefab = value;
+                Refresh();
+            }
+        }
+
+        private readonly List<ProgressBar> segments = new();
+        [SerializeField] private ProgressBar segmentPrefab;
+        [SerializeField] private int segmentCount;
+
+        private ProgressBar currentPrefab;
         
         protected override void Apply(float newValue)
         {
+            var expectedSegmentCount = Math.Max(0, segmentCount);
+            if (currentPrefab != segmentPrefab || expectedSegmentCount != segments.Count) RecreateSegments(expectedSegmentCount);
             if (segments == null || segments.Count == 0) return;
 
             var count = segments.Count;
@@ -44,30 +60,59 @@ namespace Damdor.Progressio
             }
         }
 
-        /// <summary>
-        /// Creates a specified amount of new segments from a prefab and removes existing segments
-        /// </summary>
-        /// <param name="prefab">The progress bar prefab to instantiate for each segment.</param>
-        /// <param name="amount">The number of segments to create.</param>
-        public void CreateSegments(ProgressBar prefab, int amount)
+        protected override void OnValidate()
+        {
+            base.OnValidate();
+            Refresh();
+        }
+
+        private void RecreateSegments(int count)
+        {
+            if (currentPrefab != segmentPrefab) RemoveSegments();
+            currentPrefab = segmentPrefab;
+            UpdateSegmentsCount(count);
+        }
+
+        private void RemoveSegments()
         {
             foreach (var segment in segments)
             {
-                if (segment == null) continue;
-                if (Application.isPlaying)
-                    Destroy(segment.gameObject);
-                else
-                    DestroyImmediate(segment.gameObject);
+                DestroySegment(segment);
             }
             segments.Clear();
-
-            for (var i = 0; i < amount; i++)
-            {
-                var newSegment = Instantiate(prefab, transform);
-                segments.Add(newSegment);
-            }
-
-            Refresh();
+            currentPrefab = null;
         }
+
+        private void UpdateSegmentsCount(int count)
+        {
+            while (segments.Count < count) segments.Add(Create());
+            while (segments.Count > count) DestroySegment(segments[^1]);
+        }
+
+        private ProgressBar Create()
+        {
+            var segment = Instantiate(segmentPrefab, transform);
+            segment.gameObject.hideFlags = HideFlags.HideAndDontSave;
+            return segment;
+        }
+
+        public void DestroySegment(ProgressBar segment)
+        {
+            if (segment == null) return;
+            segments.Remove(segment);
+
+            switch (Application.isPlaying)
+            {
+                case true:
+                    Destroy(segment.gameObject);
+                    return;
+                case false:
+#if UNITY_EDITOR
+                    UnityEditor.EditorApplication.delayCall += () => { DestroyImmediate(segment.gameObject); };
+#endif
+                    return;
+            }
+        }
+
     }
 }
