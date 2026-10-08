@@ -3,6 +3,7 @@
 Progressio is a lightweight and customizable library for creating and managing progress bars in Unity. It provides a simple API for common operations, built-in animations, event handling, and supports both traditional MonoBehaviours and the newer UI Toolkit.
 
 ## Table of Contents
+- [Installation](#installation)
 - [Usage Canvas](#usage-canvas)
   - [Use mono-based progress bars](#use-mono-based-progress-bars)
   - [Create own mono-based progress bar (deriving from ProgressBar)](#create-own-mono-based-progress-bar-deriving-from-progressbar)
@@ -18,6 +19,22 @@ Progressio is a lightweight and customizable library for creating and managing p
 - [List of built-in progress bars](#list-of-built-in-progress-bars)
 
 ---
+
+# Installation
+
+This package is currently under development. In the future, it will be available via a UPM registry. For now, you can install it using the Git URL.
+
+**Option A: Install via Package Manager window**
+1. In Unity, open **Window** > **Package Manager**.
+2. Click the **+** button and select **Add package from git URL...**
+3. Enter the following URL and click **Add**:
+   `https://github.com/damdordev/Progressio.git#1.0.0-preview`
+
+**Option B: Install via `manifest.json`**
+Open your project's `Packages/manifest.json` file and add the following line to your `"dependencies"` block:
+```json
+"com.damdor.progressio": "https://github.com/damdordev/Processio.git#1.0.0-preview"
+```
 
 # Usage Canvas
 
